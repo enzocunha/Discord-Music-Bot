@@ -16,6 +16,16 @@ This is a simple music bot for Discord, built using Python and the Discord.py li
 `DISCORD_TOKEN=your bot token`
 3.  Finally, you can run the bot with `python src/main.py` in your terminal.
 
-## License
+## Commands
+
+Once the bot is running, you can use the following commands to control the music playback:
+
+-   `!join`: makes the bot join a voice channel
+-   `!play youtube_url`: plays a song with the given name or URL
+-   `!queue`: shows the current song queue
+-   `!pause`: pauses the current song
+-   `!resume`: resumes the paused song
+
+# License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
