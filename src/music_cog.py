@@ -5,6 +5,12 @@ import youtube_dl
 
 class MusicPlayer(commands.Cog):
     def __init__(self, bot) -> None:
+        """
+        Initializes the MusicPlayer class.
+
+        :param bot: A Discord bot object.
+        """
+
         self.bot = bot
         print('Music Player loaded succesfully.')
         self.YDL_OPTIONS = YDL_OPTIONS = {
@@ -13,6 +19,12 @@ class MusicPlayer(commands.Cog):
 
     @commands.command()
     async def join(self, ctx):
+        """
+        A command to join a voice channel.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         if ctx.author.voice is None:
             await ctx.send('You need to be in a voice channel to use this command.')
             return
@@ -27,6 +39,12 @@ class MusicPlayer(commands.Cog):
 
     @commands.command()
     async def leave(self, ctx):
+        """
+        A command to disconnect the bot from the current voice channel.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         if ctx.voice_client is None:
             await ctx.send('Not connected to any voice channel.')
             return
@@ -36,11 +54,14 @@ class MusicPlayer(commands.Cog):
         await ctx.send('Disconnected.')
 
     @commands.command()
-    async def clear(self, ctx, amount=100):
-        await ctx.channel.purge(limit=amount)
-
-    @commands.command()
     async def play(self, ctx, youtube_url):
+        """
+        A command to play a YouTube video in a voice channel.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        :param youtube_url: A string representing the URL of the YouTube video to play.
+        """
+
         if ctx.author.voice is None:
             await ctx.send("You need to be in a voice channel to use this command.")
             return
@@ -55,12 +76,18 @@ class MusicPlayer(commands.Cog):
             title = info['title']
 
             self.queue.append({'title': title, 'url': url})
+            await ctx.send(f'Adding {title} to queue.')
 
             if not ctx.voice_client.is_playing():
-                await ctx.send(f'Adding {title} to queue.')
                 await self.play_next(ctx)
-                
+
     async def play_next(self, ctx):
+        """
+        A helper function that plays the next song in the queue.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         if len(self.queue) == 0:
             return
 
@@ -70,20 +97,39 @@ class MusicPlayer(commands.Cog):
         source = discord.FFmpegPCMAudio(url)
 
         await ctx.send(f'Playing {title}')
-        ctx.voice_client.play(source, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))    
+        ctx.voice_client.play(
+            source, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))
 
     @commands.command()
     async def pause(self, ctx):
+        """
+        A command that pauses the currently playing song.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         ctx.voice_client.pause()
         await ctx.send("Paused.")
 
     @commands.command()
     async def resume(self, ctx):
+        """
+        A command that resumes the currently paused song.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         ctx.voice_client.resume()
         await ctx.send("Resuming.")
-        
+
     @commands.command()
     async def queue(self, ctx):
+        """
+        A command that displays the current song queue.
+
+        :param ctx: A Context object that contains information about the command invocation context.
+        """
+
         if len(self.queue) == 0:
             await ctx.send('The queue is currently empty.')
         else:
