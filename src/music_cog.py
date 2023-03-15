@@ -52,9 +52,25 @@ class MusicPlayer(commands.Cog):
         with youtube_dl.YoutubeDL(self.YDL_OPTIONS) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
             url = info['formats'][0]['url']
+            title = info['title']
 
-            source = discord.FFmpegPCMAudio(url)
-            player = ctx.voice_client.play(source)
+            self.queue.append({'title': title, 'url': url})
+
+            if not ctx.voice_client.is_playing():
+                await ctx.send(f'Adding {title} to queue.')
+                await self.play_next(ctx)
+                
+    async def play_next(self, ctx):
+        if len(self.queue) == 0:
+            return
+
+        song = self.queue.pop(0)
+        title = song['title']
+        url = song['url']
+        source = discord.FFmpegPCMAudio(url)
+
+        await ctx.send(f'Playing {title}')
+        ctx.voice_client.play(source, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))    
 
     @commands.command()
     async def pause(self, ctx):
@@ -65,4 +81,13 @@ class MusicPlayer(commands.Cog):
     async def resume(self, ctx):
         ctx.voice_client.resume()
         await ctx.send("Resuming.")
-
+        
+    @commands.command()
+    async def queue(self, ctx):
+        if len(self.queue) == 0:
+            await ctx.send('The queue is currently empty.')
+        else:
+            queue_message = 'Queue:\n'
+            for index, song in enumerate(self.queue):
+                queue_message += f'{index + 1}. {song["title"]}\n'
+            await ctx.send(queue_message)
