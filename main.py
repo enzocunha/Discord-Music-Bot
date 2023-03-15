@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import discord
-from discord.ext import commands, FFmpegPCMAudio
+from discord.ext import commands
 import youtube_dl
 
 TOKEN = os.getenv('TOKEN')
@@ -41,14 +41,20 @@ async def play(ctx):
         await ctx.send("You need to be in a voice channel to use this command.")
         return
 
-    # Joining channel
     channel = ctx.author.voice.channel
     voice = await channel.connect()
     await ctx.send(f"Connecting to {channel.name}.")
-
-    # Playing audio
-    source = FFmpegPCMAudio('StarWars3.wav')
+    
+    source = discord.FFmpegPCMAudio('StarWars3.wav')
     player = voice.play(source)
+    
+@bot.command()
+async def audio(ctx, ytb_url):
+    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
+    with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+        info = ydl.extract_info(ytb_url, download=False)
+        url = info['formats'][0]['url']
+        print(url)
 
 
 # End of commands
